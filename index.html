@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexoTech - Sistema de Trazabilidad de Activos</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+
+    <!-- PANTALLA DE LOGIN -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <h2>NexoTech Servicios SpA</h2>
+            <p>Sistema de Trazabilidad de Activos Tecnológicos</p>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Correo Electrónico:</label>
+                    <input type="email" id="loginEmail" required placeholder="ej: admin@nexotech.cl">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label>Seleccionar Rol:</label>
+                    <select id="loginRole">
+                        <option value="Administrador">Administrador</option>
+                        <option value="Técnico de Bodega">Técnico de Bodega</option>
+                        <option value="Usuario Operativo">Usuario Operativo</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Iniciar Sesión</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL (DASHBOARD) -->
+    <div id="appScreen" class="app-container hidden">
+        <!-- BARRA LATERAL -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h3>NexoTech</h3>
+                <span class="badge" id="sidebarRoleBadge">Gestión de Activos</span>
+            </div>
+            <ul class="sidebar-menu">
+                <li id="menu-dashboard" class="active" onclick="switchView('dashboard')"><span class="material-icons">dashboard</span> Panel Principal</li>
+                <li id="menu-activos" onclick="switchView('activos')"><span class="material-icons">devices</span> Activos</li>
+                <li id="menu-inventario" onclick="switchView('inventario')"><span class="material-icons">inventory</span> Inventario Bodega</li>
+                <li id="menu-movimientos" onclick="switchView('movimientos')"><span class="material-icons">swap_horiz</span> Movimientos</li>
+                <li id="menu-reportes" onclick="switchView('reportes')"><span class="material-icons">assessment</span> Reportes</li>
+            </ul>
+            <div class="sidebar-footer">
+                <button onclick="handleLogout()" class="btn-logout"><span class="material-icons">logout</span> Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <header class="top-header">
+                <h2 id="viewTitle">Panel de Control General</h2>
+                <div class="user-info">
+                    <span id="userNameDisplay">Usuario</span>
+                    <span id="userRoleBadge" class="role-badge">Rol</span>
+                </div>
+            </header>
+
+            <!-- VISTA 1: DASHBOARD -->
+            <div id="view-dashboard" class="view-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Activos</h3>
+                        <p id="statTotal">450</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>En Uso / Asignados</h3>
+                        <p id="statEnUso">380</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>En Bodega</h3>
+                        <p id="statBodega">55</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Dados de Baja</h3>
+                        <p id="statBaja">15</p>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>Activos Registrados Recientemente</h3>
+                        <button id="btnAddAsset" onclick="openModal()" class="btn-success">+ Añadir Nuevo Activo</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código Activo</th>
+                                    <th>Tipo</th>
+                                    <th>Marca / Modelo</th>
+                                    <th>Asignado a</th>
+                                    <th>Ubicación</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assetsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 2: ACTIVOS -->
+            <div id="view-activos" class="view-section hidden">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>Gestión Completa de Activos Tecnológicos</h3>
+                        <button onclick="openModal()" class="btn-success">+ Añadir Nuevo Activo</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Tipo</th>
+                                    <th>Modelo</th>
+                                    <th>Responsable</th>
+                                    <th>Ubicación</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullAssetsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 3: INVENTARIO BODEGA -->
+            <div id="view-inventario" class="view-section hidden">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>Control de Stock en Bodega Central</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Tipo</th>
+                                    <th>Modelo</th>
+                                    <th>Estado Actual</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISTA 4: MOVIMIENTOS -->
+            <div id="view-movimientos" class="view-section hidden">
+                <div class="content-card">
+                    <h3>Historial de Movimientos y Traslados</h3>
+                    <p class="section-desc">Registro automatizado de cambios de ubicación y reasignación de equipos.</p>
+                    <ul class="activity-list" id="movementList">
+                        <!-- Dinámico -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- VISTA 5: REPORTES -->
+            <div id="view-reportes" class="view-section hidden">
+                <div class="content-card">
+                    <h3>Reporte Ejecutivo de Inventario - NexoTech</h3>
+                    <p class="section-desc">Resumen del estado operacional de los activos tecnológicos de la compañía.</p>
+                    <div class="report-box">
+                        <p><strong>Total de equipos administrados:</strong> <span id="repTotal">450</span></p>
+                        <p><strong>Equipos operativos en oficinas:</strong> <span id="repOperativos">380</span></p>
+                        <p><strong>Equipos en bodega central:</strong> <span id="repBodega">55</span></p>
+                        <p><strong>Equipos dados de baja formal (RF-03):</strong> <span id="repBaja">15</span></p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL NUEVO ACTIVO -->
+    <div id="assetModal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Registrar Nuevo Activo Tecnológico</h3>
+            <form id="assetForm" onsubmit="saveAsset(event)">
+                <div class="form-group">
+                    <label>Tipo de Activo:</label>
+                    <select id="assetType">
+                        <option value="Notebook">Notebook</option>
+                        <option value="Monitor">Monitor</option>
+                        <option value="Impresora">Impresora</option>
+                        <option value="Teléfono IP">Teléfono IP</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Marca y Modelo:</label>
+                    <input type="text" id="assetModel" required placeholder="Ej: Lenovo ThinkPad T14">
+                </div>
+                <div class="form-group">
+                    <label>Responsable / Asignado a:</label>
+                    <input type="text" id="assetUser" required placeholder="Ej: Guillermo Vargas">
+                </div>
+                <div class="form-group">
+                    <label>Ubicación:</label>
+                    <select id="assetLocation">
+                        <option value="Oficina Central">Oficina Central</option>
+                        <option value="Bodega">Bodega</option>
+                        <option value="En Reparación">En Reparación</option>
+                    </select>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" onclick="closeModal()" class="btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn-primary">Guardar Activo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
